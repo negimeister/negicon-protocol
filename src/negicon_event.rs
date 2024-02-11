@@ -3,17 +3,17 @@ use ux::u7;
 use crate::util::{make_i16, make_u16};
 use core::ops::Shr;
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub(crate) struct NegiconEvent {
-    pub(crate) event_type: NegiconEventType,
-    pub(crate) id: u16,
-    pub(crate) sub_id: u7,
-    pub(crate) value: i16,
-    pub(crate) controller_id: u8,
-    pub(crate) sequence: u8,
+pub struct NegiconEvent {
+    pub event_type: NegiconEventType,
+    pub id: u16,
+    pub sub_id: u7,
+    pub value: i16,
+    pub controller_id: u8,
+    pub sequence: u8,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug)]
-pub(crate) enum NegiconEventType {
+pub enum NegiconEventType {
     Input,
     Output,
     MemWrite,
