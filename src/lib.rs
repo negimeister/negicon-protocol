@@ -1,3 +1,5 @@
+#![no_std]
+
 mod util;
 pub mod negicon_event;
 pub mod spi_protocol;
