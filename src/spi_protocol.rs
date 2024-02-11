@@ -56,17 +56,13 @@ fn verify_crc(data: &[u8]) -> Result<(), SpiError> {
 }
 
 
-pub trait NegiconProtocol: Transfer<u8> {
-    fn verified_transmit(
-        &mut self,
-        cs: &mut dyn OutputPin<Error = Infallible>,
+pub fn verified_transmit(
+        spi: &mut dyn Transfer<u8, Error = Infallible>,
         data: &mut [u8],
     ) -> Result<(), SpiError> {
-        cs.set_low().unwrap();
         set_crc(data);
         //debug!("Sending {:?}", data);
-        let res = self.transfer(data);
-        cs.set_high().unwrap();
+        let res = spi.transfer(data);
         match res {
             Ok(_) => {
                 //debug!("Received {:?}", data);
@@ -75,6 +71,3 @@ pub trait NegiconProtocol: Transfer<u8> {
             Err(_) => Err(SpiError::TxError),
         }
     }
-}
-
-
