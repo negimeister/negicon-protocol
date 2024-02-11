@@ -56,18 +56,28 @@ fn verify_crc(data: &[u8]) -> Result<(), SpiError> {
 }
 
 
-pub fn verified_transmit(
-        spi: &mut dyn Transfer<u8, Error = Infallible>,
+pub fn verified_transmit<E>(
+        spi: &mut dyn Transfer<u8, Error = E>,
         data: &mut [u8],
     ) -> Result<(), SpiError> {
         set_crc(data);
-        //debug!("Sending {:?}", data);
-        let res = spi.transfer(data);
+        let res: Result<&[u8], E> = spi.transfer(data);
         match res {
             Ok(_) => {
-                //debug!("Received {:?}", data);
                 verify_crc(data)
             }
             Err(_) => Err(SpiError::TxError),
         }
     }
+
+
+pub fn verified_transmit_cs<E>(
+    cs: &mut dyn OutputPin<Error = Infallible>,
+    spi: &mut dyn Transfer<u8, Error = E>,
+    data: &mut [u8],
+) -> Result<(), SpiError> {
+    cs.set_low().unwrap();
+    let res = verified_transmit(spi,data);
+    cs.set_high().unwrap();
+    res
+}
