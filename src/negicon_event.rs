@@ -23,7 +23,7 @@ pub(crate) enum NegiconEventType {
 
 
 impl NegiconEvent {
-    pub(crate) fn new(
+    pub fn new(
         event_type: NegiconEventType,
         id: u16,
         sub_id: u7,
@@ -41,7 +41,7 @@ impl NegiconEvent {
         }
     }
 
-    pub(crate) fn serialize(&self) -> [u8; 8] {
+    pub fn serialize(&self) -> [u8; 8] {
         let byte0: u8 = if self.event_type == NegiconEventType::Input {
             let sub: u8 = self.sub_id.into();
             0b1000_0000u8 | sub
@@ -60,7 +60,7 @@ impl NegiconEvent {
         ]
     }
 
-    pub(crate) fn deserialize(data: [u8; 8]) -> Self {
+    pub fn deserialize(data: [u8; 8]) -> Self {
         let event_type = if data[0] & 0b1000_0000 != 0 {
             NegiconEventType::Input
         } else {
