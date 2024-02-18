@@ -111,8 +111,8 @@ impl NegiconEvent {
         bytes
     }
 
-    pub fn deserialize(data: [u8; 8]) -> Result<Self, InvalidMessage> {
-        verify_crc(&data)?;
+    pub fn deserialize(data: &[u8; 8]) -> Result<Self, InvalidMessage> {
+        verify_crc(data)?;
         let event_type = if data[0] & 0b1000_0000 != 0 {
             NegiconEventType::Input
         } else {
