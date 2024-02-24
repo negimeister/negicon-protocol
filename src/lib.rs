@@ -25,7 +25,7 @@ mod tests {
             0xbc,
         );
         let serialized = event.serialize();
-        let deserialized = NegiconEvent::deserialize(serialized);
+        let deserialized = NegiconEvent::deserialize(&serialized);
         assert_eq!(event, deserialized.unwrap());
     }
 
@@ -41,7 +41,7 @@ mod tests {
         );
         let mut serialized = event.serialize();
         serialized[5] = serialized[5].reverse_bits();
-        let deserialized = NegiconEvent::deserialize(serialized);
+        let deserialized = NegiconEvent::deserialize(&serialized);
         assert_eq!(InvalidMessage::CrcError, deserialized.unwrap_err());
     }
 }
