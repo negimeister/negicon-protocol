@@ -111,6 +111,10 @@ impl NegiconEvent {
         bytes
     }
 
+    pub fn is_ping(&self) -> bool {
+        self.event_type == NegiconEventType::Input && 0u8 == self.sub_id.into() && self.value == 0
+    }
+
     pub fn serialize_u16(&self) -> [u16; 4] {
         let byte0: u8 = if self.event_type == NegiconEventType::Input {
             let sub: u8 = self.sub_id.into();
