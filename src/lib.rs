@@ -1,7 +1,10 @@
 #![no_std]
 
 pub mod negicon_event;
-mod util;
+pub mod util;
+
+pub use negicon_event::*;
+pub use util::*;
 
 #[cfg(test)]
 mod tests {

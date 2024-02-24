@@ -111,6 +111,33 @@ impl NegiconEvent {
         bytes
     }
 
+    pub fn serialize_u16(&self) -> [u16; 4] {
+        let byte0: u8 = if self.event_type == NegiconEventType::Input {
+            let sub: u8 = self.sub_id.into();
+            0b1000_0000u8 | sub
+        } else {
+            self.event_type as u8
+        };
+
+        let mut bytes = [
+            byte0,
+            self.id.shr(8) as u8,
+            self.id as u8,
+            self.value.shr(8) as u8,
+            self.value as u8,
+            self.controller_id,
+            self.sequence,
+            0u8,
+        ];
+        set_crc(bytes.as_mut());
+        [
+            make_u16(bytes[0], bytes[1]),
+            make_u16(bytes[2], bytes[3]),
+            make_u16(bytes[4], bytes[5]),
+            make_u16(bytes[6], bytes[7]),
+        ]
+    }
+
     pub fn deserialize(data: &[u8; 8]) -> Result<Self, InvalidMessage> {
         verify_crc(data)?;
         let event_type = if data[0] & 0b1000_0000 != 0 {
