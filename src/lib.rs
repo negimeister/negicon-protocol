@@ -1,6 +1,7 @@
 #![no_std]
 
 pub mod negicon_event;
+pub mod ringbuf;
 pub mod util;
 
 pub use negicon_event::*;
