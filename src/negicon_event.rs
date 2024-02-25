@@ -1,3 +1,4 @@
+use defmt::Format;
 pub use ux::u7;
 
 use crate::util::{make_i16, make_u16};
@@ -21,7 +22,7 @@ pub enum NegiconEventType {
     SetControllerId,
 }
 
-#[derive(PartialEq, Clone, Copy, Debug)]
+#[derive(PartialEq, Clone, Copy, Debug, Format)]
 pub enum InvalidMessage {
     CrcError,
 }
