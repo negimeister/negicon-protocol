@@ -12,7 +12,7 @@ pub enum BufferError {
 
 impl<T: core::marker::Copy, const SIZE: usize> RingBuffer<T, SIZE> {
     // Creates a new RingBuffer
-    pub(crate) fn new() -> RingBuffer<T, SIZE> {
+    pub fn new() -> RingBuffer<T, SIZE> {
         RingBuffer {
             buffer: [None; SIZE],
             head: 0,
