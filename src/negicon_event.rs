@@ -1,7 +1,10 @@
 use defmt::Format;
 pub use ux::u7;
 
-use crate::util::{make_i16, make_u16};
+use crate::{
+    make_u32,
+    util::{make_i16, make_u16},
+};
 use core::ops::Shr;
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct NegiconEvent {
@@ -117,29 +120,20 @@ impl NegiconEvent {
     }
 
     pub fn serialize_u16(&self) -> [u16; 4] {
-        let byte0: u8 = if self.event_type == NegiconEventType::Input {
-            let sub: u8 = self.sub_id.into();
-            0b1000_0000u8 | sub
-        } else {
-            self.event_type as u8
-        };
-
-        let mut bytes = [
-            byte0,
-            self.id.shr(8) as u8,
-            self.id as u8,
-            self.value.shr(8) as u8,
-            self.value as u8,
-            self.controller_id,
-            self.sequence,
-            0u8,
-        ];
-        set_crc(bytes.as_mut());
+        let bytes = self.serialize();
         [
             make_u16(bytes[0], bytes[1]),
             make_u16(bytes[2], bytes[3]),
             make_u16(bytes[4], bytes[5]),
             make_u16(bytes[6], bytes[7]),
+        ]
+    }
+
+    pub fn serialize_u32(&self) -> [u32; 2] {
+        let bytes = self.serialize();
+        [
+            make_u32(bytes[0], bytes[1], bytes[2], bytes[3]),
+            make_u32(bytes[4], bytes[5], bytes[6], bytes[7]),
         ]
     }
 

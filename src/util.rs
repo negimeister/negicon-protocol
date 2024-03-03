@@ -62,6 +62,10 @@ pub fn make_u16(upper: u8, lower: u8) -> u16 {
     lower as u16 | (upper as u16).shl(8)
 }
 
+pub fn make_u32(top: u8, high: u8, low: u8, bottom: u8) -> u32 {
+    bottom as u32 | (low as u32).shl(8) | (high as u32).shl(16) | (top as u32).shl(24)
+}
+
 pub fn make_i16(upper: u8, lower: u8) -> i16 {
     make_u16(upper, lower) as i16
 }
