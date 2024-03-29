@@ -25,6 +25,17 @@ pub enum NegiconEventType {
     SetControllerId,
 }
 
+#[derive(PartialEq, Clone, Copy, Debug)]
+pub enum NegiconModuleType {
+    Controller = 0,
+    Hotcues,
+    SmoothEncoder,
+    DetentEncoder,
+    Ring,
+    DigitalPaddle,
+    AnalogPaddle,
+}
+
 #[derive(PartialEq, Clone, Copy, Debug, Format)]
 pub enum InvalidMessage {
     CrcError,
@@ -94,6 +105,17 @@ impl NegiconEvent {
         }
     }
 
+    pub fn ping(id: u16, module_type: NegiconModuleType, sequence: u8) -> Self {
+        NegiconEvent {
+            event_type: NegiconEventType::Input,
+            id,
+            sub_id: u7::new(0),
+            value: module_type as i16,
+            controller_id: 0,
+            sequence,
+        }
+    }
+
     pub fn serialize(&self) -> [u8; 8] {
         let byte0: u8 = if self.event_type == NegiconEventType::Input {
             let sub: u8 = self.sub_id.into();
@@ -116,7 +138,8 @@ impl NegiconEvent {
     }
 
     pub fn is_ping(&self) -> bool {
-        self.event_type == NegiconEventType::Input && 0u8 == self.sub_id.into() && self.value == 0
+        (self.event_type == NegiconEventType::Input || self.event_type == NegiconEventType::Output)
+            && 0u8 == self.sub_id.into()
     }
 
     pub fn serialize_u16(&self) -> [u16; 4] {
