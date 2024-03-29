@@ -54,4 +54,12 @@ mod tests {
         assert_eq!(event, deserialized.unwrap());
         assert!(event.is_ping());
     }
+
+    #[test]
+    fn empty() {
+        let event = NegiconEvent::empty();
+        let serialized = event.serialize();
+        let deserialized = NegiconEvent::deserialize(&serialized);
+        assert_eq!(event, deserialized.unwrap());
+    }
 }

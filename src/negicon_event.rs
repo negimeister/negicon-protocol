@@ -116,6 +116,17 @@ impl NegiconEvent {
         }
     }
 
+    pub fn empty() -> Self {
+        NegiconEvent {
+            event_type: NegiconEventType::Input,
+            id: 0,
+            sub_id: u7::new(0),
+            value: 0,
+            controller_id: 0,
+            sequence: 0,
+        }
+    }
+
     pub fn serialize(&self) -> [u8; 8] {
         let byte0: u8 = if self.event_type == NegiconEventType::Input {
             let sub: u8 = self.sub_id.into();
