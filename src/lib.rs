@@ -45,4 +45,13 @@ mod tests {
         let deserialized = NegiconEvent::deserialize(&serialized);
         assert_eq!(InvalidMessage::CrcError, deserialized.unwrap_err());
     }
+
+    #[test]
+    fn ping() {
+        let event = NegiconEvent::ping(0x1234, NegiconModuleType::Controller, 0x56);
+        let serialized = event.serialize();
+        let deserialized = NegiconEvent::deserialize(&serialized);
+        assert_eq!(event, deserialized.unwrap());
+        assert!(event.is_ping());
+    }
 }
