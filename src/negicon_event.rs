@@ -153,6 +153,10 @@ impl NegiconEvent {
             && 0u8 == self.sub_id.into()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.id == 0 && self.value == 0 && self.controller_id == 0 && self.sequence == 0
+    }
+
     pub fn serialize_u16(&self) -> [u16; 4] {
         let bytes = self.serialize();
         [
