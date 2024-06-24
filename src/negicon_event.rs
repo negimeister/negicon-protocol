@@ -34,6 +34,7 @@ pub enum NegiconModuleType {
     Ring,
     DigitalPaddle,
     AnalogPaddle,
+    MultiControl,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug, Format)]
