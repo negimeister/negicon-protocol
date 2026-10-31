@@ -1,5 +1,7 @@
 use core::ops::Shl;
 
+use ux::i24;
+
 pub trait ConvertToU16 {
     fn to_u16_big_endian(self) -> [u16; 4];
     fn to_u16_little_endian(self) -> [u16; 4];
@@ -66,6 +68,14 @@ pub fn make_u32(top: u8, high: u8, low: u8, bottom: u8) -> u32 {
     bottom as u32 | (low as u32).shl(8) | (high as u32).shl(16) | (top as u32).shl(24)
 }
 
+pub fn make_i32(top: u8, high: u8, low: u8, bottom: u8) -> i32 {
+    make_u32(top, high, low, bottom) as i32
+}
+
 pub fn make_i16(upper: u8, lower: u8) -> i16 {
     make_u16(upper, lower) as i16
+}
+
+pub fn make_i24(upper: u8, midder: u8, lower: u8) -> i24 {
+    i24::new(make_i32(if upper & 0x80 != 0 { 0xFF } else { 0 }, upper, midder, lower))
 }

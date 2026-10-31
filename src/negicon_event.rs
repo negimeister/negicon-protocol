@@ -1,28 +1,18 @@
 use defmt::Format;
+use ux::i24;
 pub use ux::u7;
 
 use crate::{
-    make_u32,
-    util::{make_i16, make_u16},
+    make_i24, make_u32,
+    util::{make_u16},
 };
-use core::ops::Shr;
+use core::{iter::empty, ops::Shr};
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct NegiconEvent {
-    pub event_type: NegiconEventType,
     pub id: u16,
-    pub sub_id: u7,
-    pub value: i16,
-    pub controller_id: u8,
+    pub sub_id: u8,
+    pub value: i24,
     pub sequence: u8,
-}
-
-#[derive(PartialEq, Clone, Copy, Debug)]
-pub enum NegiconEventType {
-    Input,
-    Output,
-    MemWrite,
-    Reboot,
-    SetControllerId,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug)]
@@ -75,6 +65,7 @@ fn crc(data: &[u8]) -> u8 {
 fn set_crc(data: &mut [u8]) {
     data[7] = crc(data);
 }
+
 fn verify_crc(data: &[u8]) -> Result<(), InvalidMessage> {
     if data.len() != 8 {
         panic!("data.len must be 8");
@@ -88,60 +79,37 @@ fn verify_crc(data: &[u8]) -> Result<(), InvalidMessage> {
 }
 
 impl NegiconEvent {
-    pub fn new(
-        event_type: NegiconEventType,
-        id: u16,
-        sub_id: u7,
-        value: i16,
-        controller_id: u8,
-        sequence: u8,
-    ) -> Self {
+    pub fn new(id: u16, sub_id: u8, value: i24, sequence: u8) -> Self {
         NegiconEvent {
-            event_type,
             id,
             sub_id,
             value,
-            controller_id,
             sequence,
         }
     }
 
-    pub fn ping(id: u16, module_type: NegiconModuleType, sequence: u8) -> Self {
+    pub fn ping(id: u16, module_type: NegiconModuleType) -> Self {
+        Self::empty(id, module_type, 0u8)
+    }
+
+    pub fn empty(id: u16, module_type: NegiconModuleType, sequence: u8) -> Self {
         NegiconEvent {
-            event_type: NegiconEventType::Input,
             id,
-            sub_id: u7::new(0),
-            value: module_type as i16,
-            controller_id: 0,
+            sub_id: 0u8,
+            value: i24::new(module_type as i32),
             sequence,
-        }
-    }
-
-    pub fn empty() -> Self {
-        NegiconEvent {
-            event_type: NegiconEventType::Input,
-            id: 0,
-            sub_id: u7::new(0),
-            value: 0,
-            controller_id: 0,
-            sequence: 0,
         }
     }
 
     pub fn serialize(&self) -> [u8; 8] {
-        let byte0: u8 = if self.event_type == NegiconEventType::Input {
-            let sub: u8 = self.sub_id.into();
-            0b1000_0000u8 | sub
-        } else {
-            self.event_type as u8
-        };
+        let value: i32 = self.value.into();
         let mut bytes = [
-            byte0,
             self.id.shr(8) as u8,
             self.id as u8,
-            self.value.shr(8) as u8,
-            self.value as u8,
-            self.controller_id,
+            self.sub_id,
+            (value >> 16) as u8,
+            (value >> 8) as u8,
+            value as u8,
             self.sequence,
             0u8,
         ];
@@ -149,13 +117,14 @@ impl NegiconEvent {
         bytes
     }
 
+    // Pings with id 0 will be forwarded upstream to allow presence detection
     pub fn is_ping(&self) -> bool {
-        (self.event_type == NegiconEventType::Input || self.event_type == NegiconEventType::Output)
-            && 0u8 == self.sub_id.into()
+        0u8 == self.sub_id && 0u8 == self.sequence
     }
 
+    // All other pings are considered empty and shall not be forwarded
     pub fn is_empty(&self) -> bool {
-        self.id == 0 && self.value == 0 && self.controller_id == 0 && self.sequence == 0
+        0u8 == self.sub_id && 0u8 != self.sequence
     }
 
     pub fn serialize_u16(&self) -> [u16; 4] {
@@ -178,29 +147,15 @@ impl NegiconEvent {
 
     pub fn deserialize(data: &[u8; 8]) -> Result<Self, InvalidMessage> {
         verify_crc(data)?;
-        let event_type = if data[0] & 0b1000_0000 != 0 {
-            NegiconEventType::Input
-        } else {
-            match data[0] {
-                1 => NegiconEventType::Output,
-                2 => NegiconEventType::MemWrite,
-                3 => NegiconEventType::Reboot,
-                4 => NegiconEventType::SetControllerId,
-                _ => NegiconEventType::Input,
-            }
-        };
-        let sub_id: u7 = u7::new(data[0] & 0b0111_1111);
-        let id = make_u16(data[1], data[2]);
-        let value = make_i16(data[3], data[4]);
-        let controller_id = data[5];
+        let id = make_u16(data[0], data[1]);
+        let sub_id: u8 = data[2];
+        let value = make_i24(data[3], data[4], data[5]);
         let sequence = data[6];
 
         Ok(NegiconEvent {
-            event_type,
             id,
             sub_id,
             value,
-            controller_id,
             sequence,
         })
     }

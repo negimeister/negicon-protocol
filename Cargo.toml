@@ -1,12 +1,12 @@
 [package]
 name = "negicon-protocol"
-version = "0.3.3"
+version = "1.0.0-beta.0"
 edition = "2021"
 description = "Definitions and utility functions for the Negicon v3 communication protocol"
 license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ux = { version = "0.1.5", default-features = false }
+ux = { version = "0.1.6", default-features = false }
 embedded-hal = { version = "0.2.5", features = ["unproven"] }
 defmt = "0.3"
