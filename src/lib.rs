@@ -15,12 +15,20 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn event_de_serialize() {
-        let event = NegiconEvent::new(0x1234, 0x12u8, i24::new(-1), 0x9a);
+    fn check_serdes(event: NegiconEvent) {
         let serialized = event.serialize();
         let deserialized = NegiconEvent::deserialize(&serialized);
         assert_eq!(event, deserialized.unwrap());
+    }
+
+    #[test]
+    fn event_de_serialize() {
+        let event = NegiconEvent::new(0x1234, 0x12u8, i24::new(-1), 0x9a);
+        check_serdes(event);
+        let event = NegiconEvent::new(0x0, 0x12u8, i24::MAX, 0x9a);
+        check_serdes(event);
+        let event = NegiconEvent::new(0x1234, 0x12u8, i24::MIN, 0);
+        check_serdes(event);
     }
 
     #[test]
