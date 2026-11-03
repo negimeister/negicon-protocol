@@ -62,11 +62,12 @@ fn crc(data: &[u8]) -> u8 {
     crc = CBA_256_TAB[(crc ^ data[6]) as usize];
     !crc
 }
+
 fn set_crc(data: &mut [u8]) {
     data[7] = crc(data);
 }
 
-fn verify_crc(data: &[u8]) -> Result<(), InvalidMessage> {
+pub fn verify_crc(data: &[u8]) -> Result<(), InvalidMessage> {
     if data.len() != 8 {
         panic!("data.len must be 8");
     }
