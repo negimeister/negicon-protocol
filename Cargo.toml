@@ -1,6 +1,6 @@
 [package]
 name = "negicon-protocol"
-version = "1.0.0-beta.0"
+version = "1.0.0-beta.1"
 edition = "2021"
 description = "Definitions and utility functions for the Negicon v3 communication protocol"
 license = "MIT"
