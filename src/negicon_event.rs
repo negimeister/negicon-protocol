@@ -30,6 +30,7 @@ pub enum NegiconModuleType {
 #[derive(PartialEq, Clone, Copy, Debug, Format)]
 pub enum InvalidMessage {
     CrcError,
+    InvalidLength,
 }
 
 const CBA_256_TAB: [u8; 256] = [
@@ -69,7 +70,7 @@ fn set_crc(data: &mut [u8]) {
 
 pub fn verify_crc(data: &[u8]) -> Result<(), InvalidMessage> {
     if data.len() != 8 {
-        panic!("data.len must be 8");
+        return Err(InvalidMessage::InvalidLength)
     }
     let checksum = crc(data);
     if data[7] == checksum {
